@@ -148,7 +148,7 @@ namespace LaprTrackr.Backend.Services
         private (string token, string refreshToken) GenerateJSONWebToken(User userInfo)
         {
             var claims = new[]
-{
+            {
                 new Claim(ClaimTypes.NameIdentifier, userInfo.UserId.ToString()),
                 new Claim(ClaimTypes.Name, userInfo.Username),
                 new Claim(ClaimTypes.Email, userInfo.Email),
