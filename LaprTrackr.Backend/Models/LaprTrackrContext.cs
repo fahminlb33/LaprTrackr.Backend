@@ -10,6 +10,8 @@ namespace LaprTrackr.Backend.Models
 
         public DbSet<Eat> EatRecords { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public LaprTrackrContext(DbContextOptions<LaprTrackrContext> optons)
           : base(optons)
         {
@@ -20,6 +22,7 @@ namespace LaprTrackr.Backend.Models
             modelBuilder.HasDatabaseMaxSize("2 GB");
             modelBuilder.Entity<User>(e => e.HasIndex(x => x.Email).IsUnique(true));
             modelBuilder.Entity<Food>(e => e.HasIndex(x => x.Barcode).IsUnique(true));
+            modelBuilder.Entity<RefreshToken>(e => e.HasIndex(x => x.Email));
 
             base.OnModelCreating(modelBuilder);
         }

@@ -5,7 +5,6 @@ using LaprTrackr.Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace LaprTrackr.Backend.Controllers
@@ -30,7 +29,7 @@ namespace LaprTrackr.Backend.Controllers
         {
             try
             {
-                _logger.LogDebug("Logging in {0}...", (object)model.Email);
+                _logger.LogDebug("Logging in {0}...", model.Email);       
                 var authenticateResponseDto = await _authenticationService.Authenticate(model);
                 return authenticateResponseDto;
             }
@@ -42,9 +41,19 @@ namespace LaprTrackr.Backend.Controllers
         }
 
         [HttpPost("refreshToken")]
-        public async Task<ActionResult> RefreshToken()
+        public async Task<ActionResult<AuthenticateResponseDto>> RefreshToken(RefreshTokenDto model)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogDebug("Checking refresh token {0}...", model.Email);
+                var authenticateResponseDto = await _authenticationService.RefreshToken(model);
+                return authenticateResponseDto;
+            }
+            catch (LaprTrackrException ex)
+            {
+                _logger.LogDebug(ex.Message);
+                return ex.GetActionResult();
+            }
         }
 
         [HttpGet("ephemeral")]
@@ -80,13 +89,6 @@ namespace LaprTrackr.Backend.Controllers
                 _logger.LogDebug(ex.Message);
                 return ex.GetActionResult();
             }
-        }
-
-        [Authorize]
-        [HttpPost("unregister")]
-        public async Task<ActionResult> Unegister()
-        {
-            throw new NotImplementedException();
         }
     }
 }
