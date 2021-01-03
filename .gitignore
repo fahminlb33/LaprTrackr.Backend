@@ -340,4 +340,7 @@ ASALocalRun/
 healthchecksdb
 
 # Local development environment
-*/appsettings.Development.json
+appsettings.Development.json
+
+# Local SQlite Database
+*.db
