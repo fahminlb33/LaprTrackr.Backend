@@ -1,38 +1,61 @@
 ﻿using LaprTrackr.Backend.Models;
+using LaprTrackr.Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace LaprTrackr.Backend.Controllers
 {
-  [Authorize]
-  [ApiController]
-  [Route("eats")]
-  public class EatsController : ControllerBase
-  {
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Eat>> Get(int id)
+    [Authorize]
+    [ApiController]
+    [Route("eats")]
+    public class EatsController : ControllerBase
+    {
+        private readonly ILogger<EatsController> _logger;
+        private readonly IEatsService _eatsService;
+
+        public EatsController(ILogger<EatsController> logger, IEatsService eatsService)
         {
-            throw new NotImplementedException();
+            _logger = logger;
+            _eatsService = eatsService;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Eat>> Get([FromRoute] int id)
+        {
+            return await _eatsService.GetById(id);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Eat>> Add(Eat model)
+        public async Task<ActionResult<Eat>> Add([FromRoute] Eat model)
         {
-            throw new NotImplementedException();
+            return await _eatsService.Create(model);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete([FromRoute] int id)
         {
-            throw new NotImplementedException();
+            var eat = await _eatsService.GetById(id);
+            if (eat is null)
+            {
+                return NotFound();
+            }
+
+            await _eatsService.Delete(eat);
+            return Ok();
         }
 
-        [HttpPut]
-        public async Task<ActionResult<Eat>> Update(Eat model)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Eat>> Update([FromRoute] int id, [FromBody] Eat model)
         {
-            throw new NotImplementedException();
+            var eat = await _eatsService.GetById(id);
+            if (eat is null)
+            {
+                return NotFound();
+            }
+
+            return await _eatsService.Update(model);
         }
-  }
+    }
 }
