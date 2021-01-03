@@ -1,4 +1,5 @@
-﻿using LaprTrackr.Backend.Models;
+﻿using LaprTrackr.Backend.Infrastructure;
+using LaprTrackr.Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -36,9 +37,10 @@ namespace LaprTrackr.Backend.Services
             var food = await _context.Foods.Where(x => x.Barcode == eat.Barcode).FirstOrDefaultAsync();
             if (food is null)
             {
+
                 food = new Food
                 {
-                    Barcode = eat.Barcode,
+                    Barcode = await GenerateBarcode(eat.Barcode),
                     Calories = eat.Calories,
                     Name = eat.Name,
                     CreatedAt = DateTime.Now,
@@ -51,7 +53,7 @@ namespace LaprTrackr.Backend.Services
             }
 
             eat.FoodId = food.FoodId;
-            
+
             await _context.EatRecords.AddAsync(eat);
             await _context.SaveChangesAsync();
 
@@ -70,6 +72,21 @@ namespace LaprTrackr.Backend.Services
             await _context.SaveChangesAsync();
 
             return eat;
+        }
+
+        private async Task<string> GenerateBarcode(string barcode)
+        {
+            var barcodeFound = true;
+            do
+            {
+                barcodeFound = (await _context.Foods.Where(x => x.Barcode == barcode).FirstOrDefaultAsync()) is not null;
+                if (barcodeFound)
+                {
+                    barcode = Helpers.GenerateRandomBarcode();
+                }
+            } while (barcodeFound);
+
+            return barcode;
         }
     }
 }
