@@ -1,5 +1,7 @@
 ﻿using LaprTrackr.Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LaprTrackr.Backend.Services
@@ -23,32 +25,51 @@ namespace LaprTrackr.Backend.Services
 
         public async Task<Eat> GetById(int id)
         {
-            return await _context.EatRecords.FindAsync((object)id);
+            return await _context.EatRecords.FindAsync(id);
         }
 
-        public async Task<Eat> Create(Eat model)
+        public async Task<Eat> Create(Eat eat)
         {
-            model.CreatedAt = DateTime.Now;
-            model.LastUpdatedAt = DateTime.Now;
+            eat.CreatedAt = DateTime.Now;
+            eat.LastUpdatedAt = DateTime.Now;
 
-            await _context.EatRecords.AddAsync(model);
+            var food = await _context.Foods.Where(x => x.Barcode == eat.Barcode).FirstOrDefaultAsync();
+            if (food is null)
+            {
+                food = new Food
+                {
+                    Barcode = eat.Barcode,
+                    Calories = eat.Calories,
+                    Name = eat.Name,
+                    CreatedAt = DateTime.Now,
+                    LastUpdatedAt = DateTime.Now,
+                    Notes = "User submitted data. Info may be inaccurrate."
+                };
+
+                await _context.Foods.AddAsync(food);
+                await _context.SaveChangesAsync();
+            }
+
+            eat.FoodId = food.FoodId;
+            
+            await _context.EatRecords.AddAsync(eat);
             await _context.SaveChangesAsync();
 
-            return model;
+            return eat;
         }
 
-        public async Task Delete(Eat model)
+        public async Task Delete(Eat eat)
         {
-            _context.EatRecords.Remove(model);
+            _context.EatRecords.Remove(eat);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Eat> Update(Eat model)
+        public async Task<Eat> Update(Eat eat)
         {
-            _context.EatRecords.Update(model);
+            _context.EatRecords.Update(eat);
             await _context.SaveChangesAsync();
 
-            return model;
+            return eat;
         }
     }
 }
