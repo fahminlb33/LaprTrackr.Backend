@@ -19,7 +19,7 @@ namespace LaprTrackr.Backend.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDatabaseMaxSize("2 GB");
+            //modelBuilder.HasDatabaseMaxSize("2 GB");
             modelBuilder.Entity<User>(e => e.HasIndex(x => x.Email).IsUnique(true));
             modelBuilder.Entity<Food>(e => e.HasIndex(x => x.Barcode).IsUnique(true));
             modelBuilder.Entity<RefreshToken>(e => e.HasIndex(x => x.Email));

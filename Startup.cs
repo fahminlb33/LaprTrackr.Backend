@@ -88,8 +88,9 @@ namespace LaprTrackr.Backend
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
-            
-            services.AddDbContext<LaprTrackrContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            //services.AddDbContext<LaprTrackrContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<LaprTrackrContext>(options => options.UseSqlite("Data Source=database.db"));
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IFoodService, FoodService>();
         }
