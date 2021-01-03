@@ -29,7 +29,7 @@ namespace LaprTrackr.Backend.Controllers
         {
             try
             {
-                _logger.LogDebug("Logging in {0}...", model.Email);       
+                _logger.LogDebug("Logging in {0}...", model.Email);
                 var authenticateResponseDto = await _authenticationService.Authenticate(model);
                 return authenticateResponseDto;
             }
@@ -56,26 +56,8 @@ namespace LaprTrackr.Backend.Controllers
             }
         }
 
-        [HttpGet("ephemeral")]
-        public async Task<ActionResult<AuthenticateResponseDto>> Ephemeral()
-        {
-            try
-            {
-                var user = await _authenticationService.CreateEphemeralAccount();
-                _logger.LogDebug("Creating ephemeral account: {0}", user.User.UserId);
-
-                return user;
-            }
-            catch (LaprTrackrException ex)
-            {
-                _logger.LogDebug(ex.Message);
-                return ex.GetActionResult();
-            }
-        }
-
         [HttpPost("register")]
-        public async Task<ActionResult<AuthenticateResponseDto>> Register(
-          User model)
+        public async Task<ActionResult<AuthenticateResponseDto>> Register(User model)
         {
             try
             {

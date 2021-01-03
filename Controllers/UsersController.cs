@@ -52,11 +52,5 @@ namespace LaprTrackr.Backend.Controllers
 
             return await _userService.Update(model);
         }
-
-        [HttpPut("sync/{id}")]
-        public async Task<ActionResult<User>> Sync([FromRoute] int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

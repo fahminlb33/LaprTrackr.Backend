@@ -18,7 +18,6 @@ namespace LaprTrackr.Backend.Services
     {
         Task<AuthenticateResponseDto> Authenticate(AuthenticateDto model);
         Task<AuthenticateResponseDto> RefreshToken(RefreshTokenDto model);
-        Task<AuthenticateResponseDto> CreateEphemeralAccount();
         Task<AuthenticateResponseDto> RegisterUser(User model);
     }
 
@@ -74,31 +73,6 @@ namespace LaprTrackr.Backend.Services
             };
 
             await SaveRefreshToken(refreshTokenEntity.User, token, refreshToken);
-            return authenticateResponseDto;
-        }
-
-        public async Task<AuthenticateResponseDto> CreateEphemeralAccount()
-        {
-            User user = new User()
-            {
-                Username = "User",
-                Role = "User",
-                CreatedAt = DateTime.Now,
-                LastUpdatedAt = DateTime.Now
-            };
-
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-
-            var (token, refreshToken) = GenerateJSONWebToken(user);
-            var authenticateResponseDto = new AuthenticateResponseDto()
-            {
-                Token = token,
-                RefreshToken = refreshToken,
-                User = user
-            };
-
-            await SaveRefreshToken(user, token, refreshToken);
             return authenticateResponseDto;
         }
 
