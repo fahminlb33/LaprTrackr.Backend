@@ -1,8 +1,6 @@
 ﻿using LaprTrackr.Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LaprTrackr.Backend.Services
@@ -10,13 +8,9 @@ namespace LaprTrackr.Backend.Services
     public interface IFoodService
     {
         Task<Food> Create(Food food);
-
         Task Delete(Food food);
-
-        Task<IEnumerable<Food>> FindByBarcode(string barcode);
-
+        Task<Food> FindByBarcode(string barcode);
         Task<Food> GetById(int id);
-
         Task<Food> Update(Food food);
     }
 
@@ -31,14 +25,12 @@ namespace LaprTrackr.Backend.Services
 
         public async Task<Food> GetById(int id)
         {
-            Food async = await _context.Foods.FindAsync((object)id);
-            return async;
+            return await _context.Foods.FindAsync((object)id);
         }
 
-        public async Task<IEnumerable<Food>> FindByBarcode(string barcode)
+        public async Task<Food> FindByBarcode(string barcode)
         {
-            List<Food> listAsync = await _context.Foods.Where(x => x.Barcode == barcode).ToListAsync();
-            return listAsync;
+            return await _context.Foods.SingleOrDefaultAsync(x => x.Barcode == barcode);
         }
 
         public async Task<Food> Create(Food food)
@@ -63,7 +55,7 @@ namespace LaprTrackr.Backend.Services
             _context.Foods.Update(food);
             await _context.SaveChangesAsync();
 
-            return await GetById(food.FoodId);
+            return food;
         }
     }
 }

@@ -3,7 +3,6 @@ using LaprTrackr.Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace LaprTrackr.Backend.Controllers
@@ -23,35 +22,46 @@ namespace LaprTrackr.Backend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Food>> Get(int id)
+        public async Task<ActionResult<Food>> Get([FromRoute] int id)
         {
-            Food result = await _foodService.GetById(id);
-            return result;
+            return await _foodService.GetById(id);
         }
 
         [HttpGet("barcode/{barcode}")]
-        public async Task<ActionResult<Food>> FindByBarcode(string barcode)
+        public async Task<ActionResult<Food>> FindByBarcode([FromRoute] string barcode)
         {
-            throw new NotImplementedException();
+            return await _foodService.FindByBarcode(barcode);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Food>> Add(Food model)
+        public async Task<ActionResult<Food>> Add([FromBody] Food model)
         {
-            Food result = await _foodService.Create(model);
-            return result;
+            return await _foodService.Create(model);
         }
 
         [HttpDelete("{id}")]
-        public async Task Delete(int id)
+        public async Task<ActionResult> Delete([FromRoute] int id)
         {
-            throw new NotImplementedException();
+            var food = await _foodService.GetById(id);
+            if (food is null)
+            {
+                return NotFound();
+            }
+
+            await _foodService.Delete(food);
+            return Ok();
         }
 
-        [HttpPut]
-        public async Task<ActionResult<Food>> Update(Food model)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Food>> Update([FromRoute] int id, [FromBody] Food model)
         {
-            throw new NotImplementedException();
+            var food = await _foodService.GetById(id);
+            if (food is null)
+            {
+                return NotFound();
+            }
+
+            return await _foodService.Update(model);
         }
     }
 }
