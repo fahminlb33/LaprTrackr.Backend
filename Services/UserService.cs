@@ -1,4 +1,4 @@
-﻿using LaprTrackr.Backend.Models;
+﻿ using LaprTrackr.Backend.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -15,6 +15,11 @@ namespace LaprTrackr.Backend.Services
     public class UserService : IUserService
     {
         private readonly LaprTrackrContext _context;
+
+        public UserService(LaprTrackrContext context)
+        {
+            _context = context;
+        }
 
         public async Task<User> GetById(int id)
         {
