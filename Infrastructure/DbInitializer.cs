@@ -14,10 +14,10 @@ namespace LaprTrackr.Backend.Infrastructure
 
             context.Users.AddRange(new User()
             {
-                Username = "Fahmi",
-                Password = "f4hm1",
+                Username = "admin",
+                Password = "$2y$12$ewP5rtPuWysYrLdOSqzZ/uDC0gK/Dleq7BvFP32N5VS1bUvT.om.2 ",
                 Email = "support@kodesiana.com",
-                Role = "Admin",
+                Role = UserRoles.Admin,
                 CreatedAt = DateTime.Now,
                 LastUpdatedAt = DateTime.Now
             });

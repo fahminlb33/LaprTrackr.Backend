@@ -3,6 +3,7 @@
     public enum LaprTrackrStatusCodes
     {
         InternalServerError,
+        ServiceUnavailable,
         BodyNotValid,
         NotFound,
         AlreadyExists,

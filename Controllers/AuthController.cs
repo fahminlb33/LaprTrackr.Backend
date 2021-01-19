@@ -5,6 +5,7 @@ using LaprTrackr.Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace LaprTrackr.Backend.Controllers
@@ -24,8 +25,7 @@ namespace LaprTrackr.Backend.Controllers
         }
 
         [HttpPost("authenticate")]
-        public async Task<ActionResult<AuthenticateResponseDto>> Authenticate(
-          AuthenticateDto model)
+        public async Task<ActionResult<AuthenticateResponseDto>> Authenticate(AuthenticateDto model)
         {
             try
             {
@@ -37,6 +37,12 @@ namespace LaprTrackr.Backend.Controllers
             {
                 _logger.LogDebug(ex.Message);
                 return ex.GetActionResult();
+            }
+            catch (Exception ex)
+            {
+                const string message = "Failed to authenticate user";
+                _logger.LogError(ex, message);
+                return new LaprTrackrException(LaprTrackrStatusCodes.ServiceUnavailable, message).GetActionResult();
             }
         }
 
@@ -54,6 +60,12 @@ namespace LaprTrackr.Backend.Controllers
                 _logger.LogDebug(ex.Message);
                 return ex.GetActionResult();
             }
+            catch (Exception ex)
+            {
+                const string message = "Failed to get new token from refresh token";
+                _logger.LogError(ex, message);
+                return new LaprTrackrException(LaprTrackrStatusCodes.ServiceUnavailable, message).GetActionResult();
+            }
         }
 
         [HttpPost("register")]
@@ -70,6 +82,12 @@ namespace LaprTrackr.Backend.Controllers
             {
                 _logger.LogDebug(ex.Message);
                 return ex.GetActionResult();
+            }
+            catch (Exception ex)
+            {
+                const string message = "Failed to register new user";
+                _logger.LogError(ex, message);
+                return new LaprTrackrException(LaprTrackrStatusCodes.ServiceUnavailable, message).GetActionResult();
             }
         }
     }

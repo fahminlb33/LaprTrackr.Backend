@@ -34,14 +34,19 @@ namespace LaprTrackr.Backend.Services
 
         public async Task<AuthenticateResponseDto> Authenticate(AuthenticateDto model)
         {
-            if (!_context.Users.Any(x => x.Email == model.Email))
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.Email == model.Email);
+            if (user is null)
             {
-                throw new LaprTrackrException(LaprTrackrStatusCodes.NotFound, "User not found.");
+                throw new LaprTrackrException(LaprTrackrStatusCodes.NotFound, "Email or password not match.");
             }
 
-            var user = await _context.Users.SingleAsync(x => x.Email == model.Email);
+            if (!BCrypt.Net.BCrypt.EnhancedVerify(model.Password, user.Password))
+            {
+                throw new LaprTrackrException(LaprTrackrStatusCodes.NotFound, "Email or password not match.");
+            }
+
             var (token, refreshToken) = GenerateJSONWebToken(user);
-            var authenticateResponseDto = new AuthenticateResponseDto()
+            var authenticateResponseDto = new AuthenticateResponseDto
             {
                 Token = token,
                 RefreshToken = refreshToken,
@@ -55,17 +60,18 @@ namespace LaprTrackr.Backend.Services
         public async Task<AuthenticateResponseDto> RefreshToken(RefreshTokenDto model)
         {
             var refreshTokenEntity = await _context.RefreshTokens.Where(x => x.Email == model.Email).Include(x => x.User).SingleOrDefaultAsync();
-            if (refreshTokenEntity == null)
+            if (refreshTokenEntity is null)
             {
                 throw new LaprTrackrException(LaprTrackrStatusCodes.AuthNotAuhenticated, "Refresh token is not valid.");
             }
+
             if ((DateTime.Now - refreshTokenEntity.CreatedAt).TotalDays > 7)
             {
                 throw new LaprTrackrException(LaprTrackrStatusCodes.AuthNotAuhenticated, "Refresh token is expired.");
             }
 
             var (token, refreshToken) = GenerateJSONWebToken(refreshTokenEntity.User);
-            var authenticateResponseDto = new AuthenticateResponseDto()
+            var authenticateResponseDto = new AuthenticateResponseDto
             {
                 Token = token,
                 RefreshToken = refreshToken,
@@ -83,11 +89,11 @@ namespace LaprTrackr.Backend.Services
                 throw new LaprTrackrException(LaprTrackrStatusCodes.AlreadyExists, "Email already used.");
             }
 
-            var entityEntry = await _context.Users.AddAsync(model);
+            await _context.Users.AddAsync(model);
             await _context.SaveChangesAsync();
 
             var (token, refreshToken) = GenerateJSONWebToken(model);
-            var authenticateResponseDto = new AuthenticateResponseDto()
+            var authenticateResponseDto = new AuthenticateResponseDto
             {
                 Token = token,
                 RefreshToken = refreshToken,
@@ -101,7 +107,7 @@ namespace LaprTrackr.Backend.Services
         private async Task SaveRefreshToken(User model, string token, string refreshToken)
         {
             var refreshTokenEntity = await _context.RefreshTokens.Where(x => x.Email == model.Email).SingleOrDefaultAsync();
-            if (refreshTokenEntity != null)
+            if (refreshTokenEntity is not null)
             {
                 refreshTokenEntity.Token = refreshToken;
             }
@@ -113,6 +119,7 @@ namespace LaprTrackr.Backend.Services
                     Token = refreshToken,
                     CreatedAt = DateTime.Now
                 };
+
                 await _context.RefreshTokens.AddAsync(refreshTokenEntity);
             }
 
@@ -128,6 +135,7 @@ namespace LaprTrackr.Backend.Services
                 new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(ClaimTypes.Role, userInfo.Role)
             };
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(_config["Jwt:Issuer"], _config["Jwt:Audience"], claims, expires: DateTime.Now.AddMinutes(120), signingCredentials: signingCredentials);
