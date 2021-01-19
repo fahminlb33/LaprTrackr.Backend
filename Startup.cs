@@ -46,7 +46,7 @@ namespace LaprTrackr.Backend
                     Title = "LaprTrackr.Backend",
                     Version = "v1"
                 });
-                OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme()
+                OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.Http,
                     Scheme = "Bearer",
@@ -130,8 +130,8 @@ namespace LaprTrackr.Backend
                 }
                 catch (Exception ex)
                 {
-                    Log.Fatal(ex, "Server encountered an unexpected error");
-                    var exception = new LaprTrackrException(LaprTrackrStatusCodes.InternalServerError, "Server encountered an unexpected error");
+                    Log.Error(ex, "Specified path is not found");
+                    var exception = new LaprTrackrException(LaprTrackrStatusCodes.NotFound, "Specified path is not found");
                     var dto = exception.GetResponse();
 
                     context.Response.StatusCode = 404;
